@@ -2,47 +2,50 @@
 
 int main( ) {
 
-	var u = Var( );
-	var n = Var( 123 );
-	var s = Var( "abc" );
-	var b = Var( true );
+	var u = undefined( );
+	var n = number( 123 );
+	var s = string( "abc" );
+	var b = boolean( true );
 
 	console.log( n, s, b );
 
-	var a = array < Var > { 1, 2 };
-	for ( var [ index, value ] in a ) { console.log( index, value ); }
+	var a = array < number > { 112, 221 };
+	for ( var index in a ) { console.log( index ); }
 
-	var t = tuple < Var > { 100, "200" };
+	var t = tuple < number, string > { 100, "200" };
 	var A = t[ 0 ], B = t[ 1 ];
 	
 	console.log( A, B );
 
-	var j = json < Var > {
-		{ "n", 100 },
-		{ "s", "abc" },
-		{ "b", true },
-		{ "a", array < Var > { 11, 22 } },
-		{ "j", json < Var > { { "x", 1 }, { "y", 2 } } },
-		{ "t", tuple < Var > { 100, "200" } }
+	var j = json < string > {
+		{ "n", number( 123 ) },
+		{ "s", string( "abc" ) },
+		{ "b", boolean( true ) },
+		{ "a", array < number > { 11, 22 } },
+		{ "j", json < string > {
+			{ "one", number( 321 ) },
+			{ "two", string( "cba" ) },
+			{ "tree", boolean( false ) }
+		} },
+		{ "t", tuple < number, string > { 100, "200" } }
 	};
 
-	for ( var [ key, value ] in j ) {
+	for ( string key in j ) {
+		var value = undefined( j[ key ] );
 		console.log( key, value );
 		if ( key == "a" ) {
-			for ( var [ i, v ] in value ) { console.log( i, v ); }
-			for ( var i = 0; i < value.length; i++ ) { console.log( value[ i ] ); }
+			for ( number index in value ) { console.log( index ); }
+			for ( number i = 0; i < value.length; i++ ) { console.log( value[ i ] ); }
 		} else if ( key == "j" ) {
-			console.log( value[ "x" ] );
-			for ( var [ k, v ] in value ) { console.log( k, v ); }
+			console.log( value[ "tree" ] );
+			for ( string index in value ) { console.log( value[ index ] ); }
 		} else if ( key == "t" ) {
-			var A = value[ 0 ], B = value[ 1 ];
+			var A = number( value[ 0 ] );
+			var B = string( value[ 1 ] );
 			console.log( A, B );
-			for ( var [ i, v ] in value ) { console.log( i, v ); }
+			for ( undefined index in value ) { console.log( index ); }
 		}
 	}
 
 	return 0;
 }
-
-
-// crear number bool undefined y string como clases que le asignen a var

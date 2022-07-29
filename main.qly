@@ -2,13 +2,13 @@ from 'test.qly' import 'test'
 
 export class Data {
 
-	constructor( ) { }
+	constructor(){}
 
 	public function get( ): void { }
 
 }
 
-function main( ): void {
+function main(): void {
 
   // Inline Comments
   /*
@@ -16,7 +16,7 @@ function main( ): void {
   */
   
   var u: undefined
-  const n: number = 123
+  const n: number = .2
   const s: string = 'abc'
   const b: boolean = true
   
@@ -25,7 +25,7 @@ function main( ): void {
   var a: array [ number ] = { 1, 2 }
   for ( var [ i: number, v: number ] in a ) { console.log( v ) }
   
-  var t: tuple [ number, string ] = { 100, '200' }
+  var t: tuple [ number, string ] = { 100.1, '200' }
   var [ A: number, B: string ] = t
   
   console.log( A, B )
