@@ -24,8 +24,9 @@ struct Var {
 	int length = 0;
 	Var( ) { }
 	Var( int value ) : n( value ) { type = "number"; }
-	Var( const char* value ) : s( value ) { type = "string"; }
-	Var( std::string value ) : s( value ) { type = "string"; }
+	Var( double value ) : n( value ) { type = "number"; }
+	Var( const char* value ) : s( value ) { type = "string"; length = s.length( ); }
+	Var( std::string value ) : s( value ) { type = "string"; length = s.length( ); }
 	Var( bool value ) : b( value ) { type = "boolean"; }
 	Var( std::initializer_list < Var > value ) {
 		for ( auto i : value ) {
@@ -96,6 +97,7 @@ struct Var {
 		else if ( type == "boolean" ) { return b < other.b; }
 		else if ( type == "json" || type == "array" || type == "tuple" ) { return container < other.container; }
 	}
+
 	auto begin( ) { return index.begin( ); }
 	auto end( ) { return index.end( ); }
 
@@ -122,34 +124,89 @@ struct Var {
 		return value;
 	}
 
-	bool isLower( ) {
+	Var isLower( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		for ( char piece : s ) { if ( !islower( piece ) ) { return false; } }
 		return true;
 	}
 
-	bool isUpper( ) {
+	Var isUpper( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		for ( char piece : s ) { if ( !isupper( piece ) ) { return false; } }
 		return true;
 	}
 
-	std::vector < Var > split( Var value ) {
-		if ( type == "string" && value.type == "string" ) {
-			std::string token;
-			std::vector < Var > out;
-			char delimiter = value.s[ 0 ];
-			for ( int i = 0; i <= s.length( ); i++ ) {
-				char back = s[ i-1 ], current = s[ i ], next = s[ i+1 ];
-				//if ( current == ' ' && next == ' ' ) { continue; }
-				if ( current == delimiter || i == s.length( ) ) { out.push_back( token ); token = ""; continue; }
-				token += current;
-			}
-			return out;
-		}
-		
-		throw "OOOMMMGGG";
+	Var isCapital( ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		for ( int i = 1; i < s.length( ); i++ ) { if ( !islower( s[ i ] ) ) { return false; } }
+		if ( !isupper( s[ 0 ] ) ) { return false; }
+		return true;
 	}
+
+	Var endsWith( Var value ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		int external = value.s.length( ) -1, internal = s.length( ) -1;
+		if ( external > internal ) { return false; }
+		for ( int i = external; i >= 0; i-- ) { if ( s[ internal ] != value.s[ external ] ) { return false; } external--; internal--; }
+		return true;
+	}
+
+	Var startsWith( Var value ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		int external = value.s.length( ) -1, internal = s.length( ) -1;
+		if ( external > internal ) { return false; }
+		for ( int i = external; i <= 0; i++ ) { if ( s[ internal ] != value.s[ external ] ) { return false; } external++; internal++; }
+		return true;
+	}
+
+	Var isNumeric( ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		for ( int i = 0; i <= s.length( ); i++ ) { if ( !isdigit( s[ i ] ) )	{ return false; } }
+		return true;
+	}
+
+	Var toNumber( ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		for ( int i = 0; i < s.length( ); i++ ) { if ( !isdigit( s[ i ] ) ) { throw "OOOMMMGGG"; } }
+		return atoi( s.c_str( ) );
+	}
+
+	Var replace( Var value, Var v ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		while ( true ) { int index = s.find( value.s );
+			if ( index != -1 ) { s.replace( index, value.s.length( ), v.s ); }
+			else { break; }
+		}
+		return s;	
+	}
+
+	Var contains( Var value ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		int index = s.find( value.s );
+		if ( index == -1 ) { return false; };
+		return true;	
+	}
+
+	std::vector < Var > split( Var value ) {
+		if ( type != "string" && value.type == "string" ) { throw "OOOMMMGGG"; }
+		std::string token;
+		std::vector < Var > out;
+		char delimiter = value.s[ 0 ];
+		for ( int i = 0; i <= s.length( ); i++ ) {
+			char back = s[ i-1 ], current = s[ i ], next = s[ i+1 ];
+			//if ( current == ' ' && next == ' ' ) { continue; }
+			if ( current == delimiter || i == s.length( ) ) { out.push_back( token ); token = ""; continue; }
+			token += current;
+		}
+		return out;
+	}
+
+	// BOOLEAN
+	Var& operator ! ( ) {
+		if ( type != "boolean" ) { throw "OOOMMMGGG"; }
+		if ( b == true ) { b = false; } else { b = true; }
+		return *this;
+	};
 
 };
 

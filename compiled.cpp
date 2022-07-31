@@ -4,18 +4,35 @@ int main( ) {
 
 	undefined u;
 	number n = 123;
+	string s = "abc";
 	boolean b = true;
 
-	string s = "Hello World";
-	string upper = s.toUpper( );
-	string lower = s.toLower( );
+	string str = "Hello World";
 
-	console.log( upper, lower );
+	string toLower = str.toLower( );
+	string toUpper = str.toUpper( );
+	string toCapital = str.toCapital( );
 
-	array < string > TEST = s.split( " " );
+	boolean isLower = str.isLower( );
+	boolean isUpper = str.isUpper( );
+	boolean isCapital = str.isCapital( );
 
+	boolean endsWith = str.endsWith( "World" );
+	boolean startsWith = str.startsWith( "Hello" );
 
-	console.log( TEST[ 0 ], TEST[ 1 ] );
+	string replace = str.replace( "or", "" );
+
+	string one = "1";
+	number ONE = one.toNumber( );
+
+	array < string > split = str.split( " " );
+
+	console.log( str.contains( "ell" ) );
+
+	console.log( toLower, toUpper, toCapital, replace );
+	console.log( isLower, isUpper, isCapital, startsWith, !endsWith );
+	console.log( split[ 0 ], split[ 1 ] );
+	console.log( str.length );
 
 	console.log( n, s, b );
 
