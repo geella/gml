@@ -8,8 +8,14 @@
 
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
+// GCC OVER CLANG
+// index to elements
+// agregar length a string
+// para array necesito saber el type
+// operator ( ) for tuple unpack?
+
 struct Var {
-	int n;
+	double n;
 	std::string s;
 	bool b;
   std::string type = "undefined";
@@ -19,6 +25,7 @@ struct Var {
 	Var( ) { }
 	Var( int value ) : n( value ) { type = "number"; }
 	Var( const char* value ) : s( value ) { type = "string"; }
+	Var( std::string value ) : s( value ) { type = "string"; }
 	Var( bool value ) : b( value ) { type = "boolean"; }
 	Var( std::initializer_list < Var > value ) {
 		for ( auto i : value ) {
@@ -37,13 +44,16 @@ struct Var {
 	Var& operator [ ] ( Var value ) {
 		if ( type == "array" || type == "json" || type == "tuple" ) { return container[ value ]; }
 	}
+	// CONST MAP ONLY WORK WITH .AT( )
+	Var operator [ ] ( Var value ) const {
+		if ( type == "array" || type == "json" || type == "tuple" ) { return container.at( value ); }
+	}
 	Var& operator = ( int value ) {
 		if ( type == "number" ) {
 			n = value;
-		} else {
-			throw "OOOMMMGGG";
+			return *this;
 		}
-		return *this;
+		throw "OOOMMMGGG";
 	}
 	Var& operator = ( const char* value ) {
 		if ( type == "string" ) {
@@ -66,6 +76,8 @@ struct Var {
 			n = value.n;
 			s = value.s;
 			b = value.b;
+			index = value.index;
+			container = value.container;
 		} else {
 			throw "OOOMMMGGG";
 		}
@@ -84,12 +96,61 @@ struct Var {
 		else if ( type == "boolean" ) { return b < other.b; }
 		else if ( type == "json" || type == "array" || type == "tuple" ) { return container < other.container; }
 	}
-	auto begin( ) {
-		return index.begin( );
+	auto begin( ) { return index.begin( ); }
+	auto end( ) { return index.end( ); }
+
+	// STRING
+	Var toLower( ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		Var value = "";
+		for ( char piece : s ) { value.s += tolower( piece ); }
+		return value;
 	}
-	auto end( ) {
-		return index.end( );
+
+	Var toUpper( ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		Var value = "";
+		for ( char piece : s ) { value.s += toupper( piece ); }
+		return value;
 	}
+
+	Var toCapital( ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		Var value = "";
+		for ( char piece : s ) { value.s += tolower( piece ); }
+		value.s[ 0 ] = toupper( value.s[ 0 ] );
+		return value;
+	}
+
+	bool isLower( ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		for ( char piece : s ) { if ( !islower( piece ) ) { return false; } }
+		return true;
+	}
+
+	bool isUpper( ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		for ( char piece : s ) { if ( !isupper( piece ) ) { return false; } }
+		return true;
+	}
+
+	std::vector < Var > split( Var value ) {
+		if ( type == "string" && value.type == "string" ) {
+			std::string token;
+			std::vector < Var > out;
+			char delimiter = value.s[ 0 ];
+			for ( int i = 0; i <= s.length( ); i++ ) {
+				char back = s[ i-1 ], current = s[ i ], next = s[ i+1 ];
+				//if ( current == ' ' && next == ' ' ) { continue; }
+				if ( current == delimiter || i == s.length( ) ) { out.push_back( token ); token = ""; continue; }
+				token += current;
+			}
+			return out;
+		}
+		
+		throw "OOOMMMGGG";
+	}
+
 };
 
 struct undefined : Var {
@@ -140,7 +201,24 @@ struct json : Var {
 
 template < typename TYPE >
 struct array : Var {
-	array( std::initializer_list < Var > value ) : Var( value ) { type = "array"; } 
+	array( std::initializer_list < Var > value ) : Var( value ) { type = "array"; }
+	array( std::vector < Var > value ) {
+		type = "array";
+		for ( auto i : value ) {
+			index.push_back( i );
+			container.insert( { length, i } );
+			length += 1;
+		}
+	}
+	array& operator = ( std::vector < Var > value ) {
+		for ( auto i : value ) {
+			index.push_back( i );
+			container.insert( { length, i } );
+			length += 1;
+		}
+		return *this;
+	}
+
 };
 
 template < typename ... TYPES >
@@ -153,28 +231,24 @@ struct tuple : Var {
 };
 
 struct {
-	std::string yellow = "\033[93m";
-	std::string blue = "\033[94m";
-	std::string green = "\033[32m";
-	std::string purple = "\033[95m";
-	std::string end = "\033[0m";
+	std::string y = "\033[93m", b = "\033[94m", g = "\033[32m", p = "\033[95m", e = "\033[0m";
 
 	std::string number( int data ) {
 		std::string value = std::to_string( data );
-		return std::string( yellow + value + end );
+		return std::string( y + value + e );
 	}
 
 	std::string string( std::string data ) {
-		return std::string( green + data + end );
+		return std::string( g + data + e );
 	}
 
 	std::string boolean( bool data ) {
 		std::string value = ( data ) ? "true" : "false";
-		return std::string( blue + value + end );
+		return std::string( b + value + e );
 	}
 
 	std::string container( std::string data ) {
-		return std::string( purple + data + end );
+		return std::string( p + data + e );
 	}
 
 	std::string type( Var data ) {
@@ -204,8 +278,9 @@ struct {
 
 } console;
 
+
 #define in :
 #define var auto
-#define const const auto
+//#define const const auto
 
 #endif // LIB_H
