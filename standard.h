@@ -5,93 +5,98 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <future>
+#include <thread>
+#include <chrono>
 
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
-// GCC OVER CLANG
 // index to elements
-// agregar length a string
 // para array necesito saber el type
 // operator ( ) for tuple unpack?
+// corregir los throw y el stdvector como return
+// const para todas las operaciones pero map solo sirve con .at
+// nececsito otro nombre para los parametros que no sea value
 
-struct Var {
+struct undefined {
 	double n;
 	std::string s;
 	bool b;
   std::string type = "undefined";
-	std::map < Var, Var > container;
-	std::vector < Var > index;
+	std::map < undefined, undefined > container;
+	std::vector < undefined > index;
 	int length = 0;
-	Var( ) { }
-	Var( int value ) : n( value ) { type = "number"; }
-	Var( double value ) : n( value ) { type = "number"; }
-	Var( const char* value ) : s( value ) { type = "string"; length = s.length( ); }
-	Var( std::string value ) : s( value ) { type = "string"; length = s.length( ); }
-	Var( bool value ) : b( value ) { type = "boolean"; }
-	Var( std::initializer_list < Var > value ) {
-		for ( auto i : value ) {
-			index.push_back( i );
-			container.insert( { length, i } );
-			length += 1;
-		}
+
+	undefined( ) { }
+
+	undefined( int value ) : n( value ) { type = "number"; }
+
+	undefined( double value ) : n( value ) { type = "number"; }
+
+	undefined( const char* value ) : s( value ) {
+		type = "string";
+		for ( auto i : s ) { container.insert( { length, i } ); length += 1; }
 	}
-	Var( std::initializer_list < std::pair < Var, Var > > value ) {
-		for ( auto [ k, v ] : value ) {
-			index.push_back( k );
-			container.insert( { k, v } );
-			length += 1;
-		}
+
+	undefined( std::string value ) : s( value ) {
+		type = "string";
+		for ( auto i : s ) { container.insert( { length, i } ); length += 1; }
 	}
-	Var& operator [ ] ( Var value ) {
-		if ( type == "array" || type == "json" || type == "tuple" ) { return container[ value ]; }
+
+	undefined( bool value ) : b( value ) { type = "boolean"; }
+
+	undefined( std::initializer_list < undefined > value ) {
+		for ( auto i : value ) { index.push_back( i ); container.insert( { length, i } ); length += 1; }
 	}
-	// CONST MAP ONLY WORK WITH .AT( )
-	Var operator [ ] ( Var value ) const {
-		if ( type == "array" || type == "json" || type == "tuple" ) { return container.at( value ); }
+
+	undefined( std::initializer_list < std::pair < undefined, undefined > > value ) {
+		for ( auto [ k, v ] : value ) { index.push_back( k ); container.insert( { k, v } ); length += 1; }
 	}
-	Var& operator = ( int value ) {
-		if ( type == "number" ) {
-			n = value;
-			return *this;
-		}
-		throw "OOOMMMGGG";
+
+	undefined& operator [ ] ( undefined value ) {
+		if ( type == "number" ) { throw "OOOMMMGGG"; }
+		else if ( type == "boolean" ) { throw "OOOMMMGGG"; }
+		return container[ value ];
 	}
-	Var& operator = ( const char* value ) {
-		if ( type == "string" ) {
-			s = value;
-		} else {
-			throw "OOOMMMGGG";
-		}
+
+	undefined& operator = ( int value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		n = value;
 		return *this;
 	}
-	Var& operator = ( bool value ) {
-		if ( type == "string" ) {
-			b = value;
-		} else {
-			throw "OOOMMMGGG";
-		}
+
+	undefined& operator = ( const char* value ) {
+		if ( type == "string" ) { throw "OOOMMMGGG"; }
+		s = value;
 		return *this;
 	}
-	Var& operator = ( Var value ) {
-		if ( value.type == type ) {
-			n = value.n;
-			s = value.s;
-			b = value.b;
-			index = value.index;
-			container = value.container;
-		} else {
-			throw "OOOMMMGGG";
-		}
+
+	undefined& operator = ( bool value ) {
+		if ( type == "string" ) { throw "OOOMMMGGG"; }
+		b = value;
 		return *this;
 	}
-	Var& operator ++ ( int ) { n++; }
-	bool operator == ( const Var &other ) const {
+
+	undefined& operator = ( undefined value ) {
+		if ( value.type == type ) { throw "OOOMMMGGG"; }
+		n = value.n;
+		s = value.s;
+		b = value.b;
+		index = value.index;
+		container = value.container;
+		return *this;
+	}
+
+	void operator ++ ( int ) { n++; }
+
+	bool operator == ( const undefined &other ) const {
 		if ( type == "number" ) { return n == other.n; }
 		else if ( type == "string" ) { return s == other.s; }
 		else if ( type == "boolean" ) { return b == other.b; }
 		else if ( type == "json" || type == "array" || type == "tuple" ) { return container == other.container; }
 	}
-	bool operator < ( const Var &other ) const {
+
+	bool operator < ( const undefined &other ) const {
 		if ( type == "number" ) { return n < other.n; }
 		else if ( type == "string" ) { return s < other.s; }
 		else if ( type == "boolean" ) { return b < other.b; }
@@ -101,49 +106,55 @@ struct Var {
 	auto begin( ) { return index.begin( ); }
 	auto end( ) { return index.end( ); }
 
+	// NUMBER
+	undefined toString( ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		return std::to_string( n );
+	}
+
 	// STRING
-	Var toLower( ) {
+	undefined toLower( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
-		Var value = "";
-		for ( char piece : s ) { value.s += tolower( piece ); }
+		std::string value = "";
+		for ( char piece : s ) { value += tolower( piece ); }
 		return value;
 	}
 
-	Var toUpper( ) {
+	undefined toUpper( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
-		Var value = "";
+		undefined value = "";
 		for ( char piece : s ) { value.s += toupper( piece ); }
 		return value;
 	}
 
-	Var toCapital( ) {
+	undefined toCapital( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
-		Var value = "";
+		undefined value = "";
 		for ( char piece : s ) { value.s += tolower( piece ); }
 		value.s[ 0 ] = toupper( value.s[ 0 ] );
 		return value;
 	}
 
-	Var isLower( ) {
+	undefined isLower( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		for ( char piece : s ) { if ( !islower( piece ) ) { return false; } }
 		return true;
 	}
 
-	Var isUpper( ) {
+	undefined isUpper( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		for ( char piece : s ) { if ( !isupper( piece ) ) { return false; } }
 		return true;
 	}
 
-	Var isCapital( ) {
+	undefined isCapital( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		for ( int i = 1; i < s.length( ); i++ ) { if ( !islower( s[ i ] ) ) { return false; } }
 		if ( !isupper( s[ 0 ] ) ) { return false; }
 		return true;
 	}
 
-	Var endsWith( Var value ) {
+	undefined endsWith( undefined value ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		int external = value.s.length( ) -1, internal = s.length( ) -1;
 		if ( external > internal ) { return false; }
@@ -151,7 +162,7 @@ struct Var {
 		return true;
 	}
 
-	Var startsWith( Var value ) {
+	undefined startsWith( undefined value ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		int external = value.s.length( ) -1, internal = s.length( ) -1;
 		if ( external > internal ) { return false; }
@@ -159,19 +170,19 @@ struct Var {
 		return true;
 	}
 
-	Var isNumeric( ) {
+	undefined isNumeric( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		for ( int i = 0; i <= s.length( ); i++ ) { if ( !isdigit( s[ i ] ) )	{ return false; } }
 		return true;
 	}
 
-	Var toNumber( ) {
+	undefined toNumber( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		for ( int i = 0; i < s.length( ); i++ ) { if ( !isdigit( s[ i ] ) ) { throw "OOOMMMGGG"; } }
 		return atoi( s.c_str( ) );
 	}
 
-	Var replace( Var value, Var v ) {
+	undefined replace( undefined value, undefined v ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		while ( true ) { int index = s.find( value.s );
 			if ( index != -1 ) { s.replace( index, value.s.length( ), v.s ); }
@@ -180,17 +191,17 @@ struct Var {
 		return s;	
 	}
 
-	Var contains( Var value ) {
+	undefined contains( undefined value ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		int index = s.find( value.s );
 		if ( index == -1 ) { return false; };
 		return true;	
 	}
 
-	std::vector < Var > split( Var value ) {
+	std::vector < undefined > split( undefined value ) {
 		if ( type != "string" && value.type == "string" ) { throw "OOOMMMGGG"; }
 		std::string token;
-		std::vector < Var > out;
+		std::vector < undefined > out;
 		char delimiter = value.s[ 0 ];
 		for ( int i = 0; i <= s.length( ); i++ ) {
 			char back = s[ i-1 ], current = s[ i ], next = s[ i+1 ];
@@ -202,22 +213,17 @@ struct Var {
 	}
 
 	// BOOLEAN
-	Var& operator ! ( ) {
+	undefined& operator ! ( ) {
 		if ( type != "boolean" ) { throw "OOOMMMGGG"; }
-		if ( b == true ) { b = false; } else { b = true; }
+		b = !b;
 		return *this;
 	};
 
 };
 
-struct undefined : Var {
-	undefined( ) { }
-	undefined( Var value ) : Var( value ) { }
-};
-
-struct number : Var {
-	number( int value ) : Var( value ) { }
-	number( Var value ) {
+struct number : undefined {
+	number( int value ) : undefined( value ) { }
+	number( undefined value ) {
 		if ( value.type == "number" ) {
 			type = value.type;
 			n = value.n;
@@ -227,21 +233,22 @@ struct number : Var {
 	}
 };
 
-struct string : Var {
-	string( const char* value ) : Var( value ) { }
-	string( Var value ) {
-		if ( value.type == "string" ) {
-			type = value.type;
-			s = value.s;
-		} else {
-			throw "OOOMMMGGG";
+struct string : undefined {
+	string( const char* value ) : undefined( value ) {}
+	string( undefined value ) {
+		if ( value.type != "string" ) { throw "OOOMMMGGG"; }
+		type = value.type;
+		s = value.s;
+		for ( auto i : s ) {
+			container.insert( { length, i } );
+			length += 1;
 		}
 	}
 };
 
-struct boolean : Var {
-	boolean( bool value ) : Var( value ) { }
-	boolean( Var value ) {
+struct boolean : undefined {
+	boolean( bool value ) : undefined( value ) { }
+	boolean( undefined value ) {
 		if ( value.type == "boolean" ) {
 			type = value.type;
 			b = value.b;
@@ -252,14 +259,14 @@ struct boolean : Var {
 };
 
 template < typename TYPE >
-struct json : Var {
-	json( std::initializer_list < std::pair < Var, Var > > value ) : Var( value ) { type = "json"; }
+struct json : undefined {
+	json( std::initializer_list < std::pair < undefined, undefined > > value ) : undefined( value ) { type = "json"; }
 };
 
 template < typename TYPE >
-struct array : Var {
-	array( std::initializer_list < Var > value ) : Var( value ) { type = "array"; }
-	array( std::vector < Var > value ) {
+struct array : undefined {
+	array( std::initializer_list < undefined > value ) : undefined( value ) { type = "array"; }
+	array( std::vector < undefined > value ) {
 		type = "array";
 		for ( auto i : value ) {
 			index.push_back( i );
@@ -267,7 +274,7 @@ struct array : Var {
 			length += 1;
 		}
 	}
-	array& operator = ( std::vector < Var > value ) {
+	array& operator = ( std::vector < undefined > value ) {
 		for ( auto i : value ) {
 			index.push_back( i );
 			container.insert( { length, i } );
@@ -279,13 +286,60 @@ struct array : Var {
 };
 
 template < typename ... TYPES >
-struct tuple : Var {
+struct tuple : undefined {
 	tuple( TYPES ... args ) { 
 		type = "tuple";
 		( index.push_back( args ), ... );
 		for ( auto i : index ) { container.insert( { length, i } ); length += 1; }
 	}
 };
+
+template < typename TYPE >
+struct promise {
+	std::future < TYPE > data;
+	promise( std::future < TYPE > value ) : data( std::move( value ) ) { }
+};
+
+struct {
+	template < typename TYPE >
+	TYPE operator << ( std::future < TYPE > value ) {
+		return value.get( );
+	}
+	template < typename TYPE >
+	TYPE operator << ( TYPE value ) {
+		return value;
+	}
+} await;
+
+struct {
+
+	std::future < void > v;
+	std::future < number > n;
+	std::future < string > s;
+	std::future < boolean > b;
+
+	void operator << ( promise < void > value ) { v = std::move( value.data ); }
+	void operator << ( promise < number > value ) { n = std::move( value.data ); }
+	void operator << ( promise < string > value ) { s = std::move( value.data ); }
+	void operator << ( promise < boolean > value ) { b = std::move( value.data ); }
+
+} detach;
+
+void sleep( undefined value ) {
+	std::this_thread::sleep_for( std::chrono::milliseconds( ( int ) value.n ) );
+}
+
+std::vector < int > range( int value ) {
+	std::vector < int > v;
+	for ( int i = 0; i < value; i++ ) { v.push_back( i ); }
+	return v;
+} 
+
+std::vector < int > range( int start, int end ) {
+	std::vector < int > v;
+	for ( int i = start; i < end; i++ ) { v.push_back( i ); }
+	return v;
+}
 
 struct {
 	std::string y = "\033[93m", b = "\033[94m", g = "\033[32m", p = "\033[95m", e = "\033[0m";
@@ -308,7 +362,7 @@ struct {
 		return std::string( p + data + e );
 	}
 
-	std::string type( Var data ) {
+	std::string type( undefined data ) {
 		std::string value;
 		if ( data.type == "number" ) {
 			value = number( data.n );
@@ -324,7 +378,7 @@ struct {
 
 	template < typename ... TYPES >
 	void log( TYPES ... args ) { 
-		std::vector < Var > data;
+		std::vector < undefined > data;
 		( data.push_back( args ), ... );
 		std::cout << type( data[ 0 ] );
 		for ( int i = 1; i < data.size( ); i++ ) {
@@ -336,8 +390,15 @@ struct {
 } console;
 
 
+
+
 #define in :
-#define var auto
-//#define const const auto
+#define function auto
+#define await await<<
+#define detach detach<<
+
+number application( );
+
+int main( ) { number n = application( ); return n.n; }
 
 #endif // LIB_H

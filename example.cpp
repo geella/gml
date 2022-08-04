@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "standard.h"
 
 int main( ) {
@@ -74,6 +75,13 @@ int main( ) {
 			for ( undefined index in value ) { console.log( index ); }
 		}
 	}
+	
+	double aA = 44;
+	std::cout << std::to_string( aA ) << std::endl;
+	std::cout << std::fixed << std::setprecision(2);
+	std::cout << aA << std::endl;
+	std::cout << std::fixed << std::setprecision(0);
+	std::cout << aA << std::endl;
 
 	return 0;
 }
