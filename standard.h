@@ -8,6 +8,7 @@
 #include <future>
 #include <thread>
 #include <chrono>
+#include <functional>
 
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
@@ -300,6 +301,11 @@ struct promise {
 	promise( std::future < TYPE > value ) : data( std::move( value ) ) { }
 };
 
+template < typename TYPE >
+auto _async_( TYPE callback ) {
+	return std::async( callback );
+}
+
 struct {
 	template < typename TYPE >
 	TYPE operator << ( std::future < TYPE > value ) {
@@ -329,13 +335,13 @@ void sleep( undefined value ) {
 	std::this_thread::sleep_for( std::chrono::milliseconds( ( int ) value.n ) );
 }
 
-std::vector < int > range( int value ) {
+std::vector < int > _range_( int value ) {
 	std::vector < int > v;
 	for ( int i = 0; i < value; i++ ) { v.push_back( i ); }
 	return v;
 } 
 
-std::vector < int > range( int start, int end ) {
+std::vector < int > _range_( int start, int end ) {
 	std::vector < int > v;
 	for ( int i = start; i < end; i++ ) { v.push_back( i ); }
 	return v;
@@ -389,16 +395,16 @@ struct {
 
 } console;
 
-
-
-
+#define lambda [=]
 #define in :
+#define range _range_
 #define function auto
 #define await await<<
 #define detach detach<<
+#define async _async_
 
-number application( );
+void application( );
 
-int main( ) { number n = application( ); return n.n; }
+int main( ) { application( ); return 0; }
 
 #endif // LIB_H
