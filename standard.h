@@ -1,21 +1,20 @@
-#ifndef LIB_H
-#define LIB_H
+#ifndef STANDARD_H
+#define STANDARD_H
 
+#include <vector>
+#include <future>
+#include <chrono>
+#include <map>
 #include <string>
 #include <iostream>
-#include <vector>
-#include <map>
-#include <future>
-#include <thread>
-#include <chrono>
-#include <functional>
 
 #pragma GCC diagnostic ignored "-Wreturn-type"
+#define time _time_
 
 // index to elements
 // para array necesito saber el type
 // operator ( ) for tuple unpack?
-// corregir los throw y el stdvector como return
+// corregir los throw y el std::vector como return
 // const para todas las operaciones pero map solo sirve con .at
 // nececsito otro nombre para los parametros que no sea value
 
@@ -308,8 +307,8 @@ auto _async_( TYPE callback ) {
 
 struct {
 	template < typename TYPE >
-	TYPE operator << ( std::future < TYPE > value ) {
-		return value.get( );
+	TYPE operator << ( promise < TYPE > value ) {
+		return value.data.get( );
 	}
 	template < typename TYPE >
 	TYPE operator << ( TYPE value ) {
@@ -331,9 +330,18 @@ struct {
 
 } detach;
 
-void sleep( undefined value ) {
-	std::this_thread::sleep_for( std::chrono::milliseconds( ( int ) value.n ) );
-}
+struct {
+	void sleep( number value ) {
+		std::this_thread::sleep_for( std::chrono::milliseconds( ( int ) value.n ) );
+	}
+	double clock( ) {
+		return std::chrono::duration_cast < std::chrono::milliseconds > ( 
+			std::chrono::time_point_cast < std::chrono::milliseconds > ( 
+				std::chrono::high_resolution_clock::now( ) 
+			).time_since_epoch( ) 
+		).count( );
+	}
+} time;
 
 std::vector < int > _range_( int value ) {
 	std::vector < int > v;
@@ -387,10 +395,13 @@ struct {
 		std::vector < undefined > data;
 		( data.push_back( args ), ... );
 		std::cout << type( data[ 0 ] );
+		//printf("data[ 0 ].n");
 		for ( int i = 1; i < data.size( ); i++ ) {
 			std::cout << " \b " << type( data[ i ] );
+			//printf( "\b ", data[ i ] );
 		}
 		std::cout << std::endl;
+		//printf( "\n" );
 	}
 
 } console;
@@ -403,8 +414,9 @@ struct {
 #define detach detach<<
 #define async _async_
 
+// array < string > argv
 void application( );
 
 int main( ) { application( ); return 0; }
 
-#endif // LIB_H
+#endif // STANDARD_H
