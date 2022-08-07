@@ -17,56 +17,80 @@
 // corregir los throw y el std::vector como return
 // const para todas las operaciones pero map solo sirve con .at
 // nececsito otro nombre para los parametros que no sea value
+// falta --
+// fatal !=
 
 struct undefined {
-	double n;
+	int i;
+	double f;
 	std::string s;
 	bool b;
   std::string type = "undefined";
+	bool decimal = false;
 	std::map < undefined, undefined > container;
 	std::vector < undefined > index;
-	int length = 0;
+	int l = 0;
+	int precision = 1;
 
 	undefined( ) { }
 
-	undefined( int value ) : n( value ) { type = "number"; }
+	undefined( int value ) : i( value ) { type = "number"; decimal = false; }
 
-	undefined( double value ) : n( value ) { type = "number"; }
+	undefined( double value ) : f( value ) { type = "number"; decimal = true; }
 
 	undefined( const char* value ) : s( value ) {
 		type = "string";
-		for ( auto i : s ) { container.insert( { length, i } ); length += 1; }
+		for ( auto i : s ) { container.insert( { l, i } ); l += 1; }
 	}
 
 	undefined( std::string value ) : s( value ) {
 		type = "string";
-		for ( auto i : s ) { container.insert( { length, i } ); length += 1; }
+		for ( auto i : s ) { container.insert( { l, i } ); l += 1; }
 	}
 
 	undefined( bool value ) : b( value ) { type = "boolean"; }
 
 	undefined( std::initializer_list < undefined > value ) {
-		for ( auto i : value ) { index.push_back( i ); container.insert( { length, i } ); length += 1; }
+		type = "array";
+		for ( auto i : value ) {
+			index.push_back( i );
+			container.insert( { l, i } );
+			l += 1; }
+	}
+
+	undefined( std::vector < undefined > value ) {
+		type = "array";
+		for ( auto i : value ) { index.push_back( i ); container.insert( { l, i } ); l += 1; }
 	}
 
 	undefined( std::initializer_list < std::pair < undefined, undefined > > value ) {
-		for ( auto [ k, v ] : value ) { index.push_back( k ); container.insert( { k, v } ); length += 1; }
+		for ( auto [ k, v ] : value ) { index.push_back( k ); container.insert( { k, v } ); l += 1; }
 	}
 
 	undefined& operator [ ] ( undefined value ) {
 		if ( type == "number" ) { throw "OOOMMMGGG"; }
+		else if ( type == "string" ) { throw "OOOMMMGGG"; }
 		else if ( type == "boolean" ) { throw "OOOMMMGGG"; }
-		return container[ value ];
+		else if ( type == "array" || type == "tuple" ) { return index[ value.i ]; }
+		else if ( type == "json" ) { return container[ value ]; }
 	}
 
 	undefined& operator = ( int value ) {
 		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		n = value;
+		i = value;
+		decimal = false;
+		return *this;
+	}
+
+	undefined& operator = ( double value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		f = value;
+		decimal = true;
 		return *this;
 	}
 
 	undefined& operator = ( const char* value ) {
-		if ( type == "string" ) { throw "OOOMMMGGG"; }
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		s = value;
 		return *this;
 	}
@@ -79,7 +103,9 @@ struct undefined {
 
 	undefined& operator = ( undefined value ) {
 		if ( value.type == type ) { throw "OOOMMMGGG"; }
-		n = value.n;
+		i = value.i;
+		f = value.f;
+		decimal = value.decimal;
 		s = value.s;
 		b = value.b;
 		index = value.index;
@@ -87,17 +113,17 @@ struct undefined {
 		return *this;
 	}
 
-	void operator ++ ( int ) { n++; }
+	void operator ++ ( int ) { i++; }
 
 	bool operator == ( const undefined &other ) const {
-		if ( type == "number" ) { return n == other.n; }
+		if ( type == "number" ) { if ( decimal ) { return i == other.i; } else { return f == other.f; } } 
 		else if ( type == "string" ) { return s == other.s; }
 		else if ( type == "boolean" ) { return b == other.b; }
 		else if ( type == "json" || type == "array" || type == "tuple" ) { return container == other.container; }
 	}
 
 	bool operator < ( const undefined &other ) const {
-		if ( type == "number" ) { return n < other.n; }
+		if ( type == "number" ) { if ( decimal ) { return i < other.i; } else { return f < other.f; } } 
 		else if ( type == "string" ) { return s < other.s; }
 		else if ( type == "boolean" ) { return b < other.b; }
 		else if ( type == "json" || type == "array" || type == "tuple" ) { return container < other.container; }
@@ -107,9 +133,84 @@ struct undefined {
 	auto end( ) { return index.end( ); }
 
 	// NUMBER
+	bool operator > ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f > tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i > tmp; }
+	}
+	
+	bool operator >= ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f >= tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i >= tmp; }
+	}
+
+	bool operator == ( undefined value ) {
+		if ( type == "number" ) {
+			if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f == tmp;}
+			else { int tmp = value.decimal ? value.f : value.i; return i == tmp; }
+		} else if ( type == "string" ) {
+			return s == value.s;
+		} else if ( type == "boolean" ) {
+			return b == value.b;
+		} else if ( type == "array" || type == "tuple" ) {
+			return index == value.index;
+		} else if ( type == "json" ) {
+			return container == container;
+		}
+	}
+
+	bool operator < ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f < tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i < tmp; }
+	}
+
+	bool operator <= ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f <= tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i <= tmp; }
+	}
+
+	undefined operator += ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f += tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i += tmp; }
+	}
+
+	undefined operator + ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f + tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i + tmp; }
+	}
+
+	undefined operator - ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f - tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i - tmp; }
+	}
+
+	undefined operator * ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f * tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i * tmp; }
+	}
+
+	undefined operator / ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f / tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i / tmp; }
+	}
+
 	undefined toString( ) {
 		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		return std::to_string( n );
+		return decimal ? std::to_string( f ) : std::to_string( i );
+	}
+
+	undefined& fixed( int value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		precision = value;
+		return *this;
 	}
 
 	// STRING
@@ -179,16 +280,18 @@ struct undefined {
 	undefined toNumber( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		for ( int i = 0; i < s.length( ); i++ ) { if ( !isdigit( s[ i ] ) ) { throw "OOOMMMGGG"; } }
+		// AGREGAR QUE PUEDA CONVERTIR UN STRING A FLOAT
 		return atoi( s.c_str( ) );
 	}
 
 	undefined replace( undefined value, undefined v ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
-		while ( true ) { int index = s.find( value.s );
-			if ( index != -1 ) { s.replace( index, value.s.length( ), v.s ); }
+		std::string tmp = s;
+		while ( true ) { int index = tmp.find( value.s );
+			if ( index != -1 ) { tmp.replace( index, value.s.length( ), v.s ); }
 			else { break; }
 		}
-		return s;	
+		return tmp;	
 	}
 
 	undefined contains( undefined value ) {
@@ -198,7 +301,7 @@ struct undefined {
 		return true;	
 	}
 
-	std::vector < undefined > split( undefined value ) {
+	std::vector < undefined > toArray( undefined value ) {
 		if ( type != "string" && value.type == "string" ) { throw "OOOMMMGGG"; }
 		std::string token;
 		std::vector < undefined > out;
@@ -212,6 +315,12 @@ struct undefined {
 		return out;
 	}
 
+	// ALL
+	undefined length ( ) {
+		if ( type != "string" && type != "array" && type != "json" && type != "tuple" ) { throw "OOOMMMGGG"; }
+		return l;
+	};
+
 	// BOOLEAN
 	undefined& operator ! ( ) {
 		if ( type != "boolean" ) { throw "OOOMMMGGG"; }
@@ -219,14 +328,22 @@ struct undefined {
 		return *this;
 	};
 
+	explicit operator bool( ) const {
+		if ( type != "boolean" ) { throw "OOOMMMGGG"; }
+		return b;
+	}
+
 };
 
 struct number : undefined {
 	number( int value ) : undefined( value ) { }
+	number( double value ) : undefined( value ) { }
 	number( undefined value ) {
 		if ( value.type == "number" ) {
 			type = value.type;
-			n = value.n;
+			i = value.i;
+			f = value.f;
+			decimal = value.decimal;
 		} else {
 			throw "OOOMMMGGG";
 		}
@@ -240,8 +357,8 @@ struct string : undefined {
 		type = value.type;
 		s = value.s;
 		for ( auto i : s ) {
-			container.insert( { length, i } );
-			length += 1;
+			container.insert( { l, i } );
+			l += 1;
 		}
 	}
 };
@@ -270,15 +387,15 @@ struct array : undefined {
 		type = "array";
 		for ( auto i : value ) {
 			index.push_back( i );
-			container.insert( { length, i } );
-			length += 1;
+			container.insert( { l, i } );
+			l += 1;
 		}
 	}
 	array& operator = ( std::vector < undefined > value ) {
 		for ( auto i : value ) {
 			index.push_back( i );
-			container.insert( { length, i } );
-			length += 1;
+			container.insert( { l, i } );
+			l += 1;
 		}
 		return *this;
 	}
@@ -290,7 +407,7 @@ struct tuple : undefined {
 	tuple( TYPES ... args ) { 
 		type = "tuple";
 		( index.push_back( args ), ... );
-		for ( auto i : index ) { container.insert( { length, i } ); length += 1; }
+		for ( auto i : index ) { container.insert( { l, i } ); l += 1; }
 	}
 };
 
@@ -332,7 +449,8 @@ struct {
 
 struct {
 	void sleep( number value ) {
-		std::this_thread::sleep_for( std::chrono::milliseconds( ( int ) value.n ) );
+		int i = value.decimal ? value.i : ( int ) value.i;
+		std::this_thread::sleep_for( std::chrono::milliseconds( i ) );
 	}
 	double clock( ) {
 		return std::chrono::duration_cast < std::chrono::milliseconds > ( 
@@ -363,6 +481,20 @@ struct {
 		return std::string( y + value + e );
 	}
 
+	std::string number( double data, int precision ) {
+		std::string value;
+		std::string tmp = std::to_string( data );
+		for ( int i = 0; i < tmp.length( ); i++ ) { 
+			if ( tmp[ i ] == '.' ) {
+				for ( int j = i; j < i+precision; j++ ) { value += tmp[ j ]; }
+				break;
+			} else {
+				value += tmp[ i ];
+			}
+		}
+		return std::string( y + value + e );
+	}
+
 	std::string string( std::string data ) {
 		return std::string( g + data + e );
 	}
@@ -379,7 +511,7 @@ struct {
 	std::string type( undefined data ) {
 		std::string value;
 		if ( data.type == "number" ) {
-			value = number( data.n );
+			if ( data.decimal ) { value = number( data.f, data.precision + 1 ); } else { value = number( data.i ); }
 		} else if ( data.type == "string" ) {
 			value = string( data.s );
 		} else if ( data.type == "boolean" ) {
@@ -395,13 +527,10 @@ struct {
 		std::vector < undefined > data;
 		( data.push_back( args ), ... );
 		std::cout << type( data[ 0 ] );
-		//printf("data[ 0 ].n");
 		for ( int i = 1; i < data.size( ); i++ ) {
 			std::cout << " \b " << type( data[ i ] );
-			//printf( "\b ", data[ i ] );
 		}
 		std::cout << std::endl;
-		//printf( "\n" );
 	}
 
 } console;

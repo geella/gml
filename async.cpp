@@ -29,6 +29,6 @@ function application( ) -> void {
 		}
 	} );
 
-	console.log( "main" );
+	console.log( "last" );
 
 }
