@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #define time _time_
@@ -17,8 +18,13 @@
 // corregir los throw y el std::vector como return
 // const para todas las operaciones pero map solo sirve con .at
 // nececsito otro nombre para los parametros que no sea value
-// falta --
-// fatal !=
+
+// falta slice
+// array push
+// Constructor nuevo para todos los tipos menos undefined que acepte undefined mientras sea del mismo tipo
+// String.parse() = toJson
+// Json o array .toString()
+// date dentro de time
 
 struct undefined {
 	int i;
@@ -114,6 +120,7 @@ struct undefined {
 	}
 
 	void operator ++ ( int ) { i++; }
+	void operator -- ( int ) { i--; }
 
 	bool operator == ( const undefined &other ) const {
 		if ( type == "number" ) { if ( decimal ) { return i == other.i; } else { return f == other.f; } } 
@@ -157,6 +164,21 @@ struct undefined {
 			return index == value.index;
 		} else if ( type == "json" ) {
 			return container == container;
+		}
+	}
+
+	bool operator != ( undefined value ) {
+		if ( type == "number" ) {
+			if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f != tmp;}
+			else { int tmp = value.decimal ? value.f : value.i; return i != tmp; }
+		} else if ( type == "string" ) {
+			return s != value.s;
+		} else if ( type == "boolean" ) {
+			return b != value.b;
+		} else if ( type == "array" || type == "tuple" ) {
+			return index != value.index;
+		} else if ( type == "json" ) {
+			return container != container;
 		}
 	}
 
@@ -210,6 +232,15 @@ struct undefined {
 	undefined& fixed( int value ) {
 		if ( type != "number" ) { throw "OOOMMMGGG"; }
 		precision = value;
+		if ( !decimal ) { decimal = true; f = i; }
+		return *this;
+	}
+
+	undefined& round( ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		i = decimal ? (int)std::round( f ) : i;
+		decimal = false;
+		precision = 0;
 		return *this;
 	}
 
@@ -399,7 +430,8 @@ struct array : undefined {
 		}
 		return *this;
 	}
-
+	// ACONDICONAR
+	//array( undefined value ) { }
 };
 
 template < typename ... TYPES >
@@ -484,9 +516,12 @@ struct {
 	std::string number( double data, int precision ) {
 		std::string value;
 		std::string tmp = std::to_string( data );
+
 		for ( int i = 0; i < tmp.length( ); i++ ) { 
 			if ( tmp[ i ] == '.' ) {
-				for ( int j = i; j < i+precision; j++ ) { value += tmp[ j ]; }
+				if ( precision != 0 ) {
+					for ( int j = i; j < i+precision+1; j++ ) { value += tmp[ j ]; }
+				}
 				break;
 			} else {
 				value += tmp[ i ];
@@ -511,7 +546,7 @@ struct {
 	std::string type( undefined data ) {
 		std::string value;
 		if ( data.type == "number" ) {
-			if ( data.decimal ) { value = number( data.f, data.precision + 1 ); } else { value = number( data.i ); }
+			if ( data.decimal ) { value = number( data.f, data.precision ); } else { value = number( data.i ); }
 		} else if ( data.type == "string" ) {
 			value = string( data.s );
 		} else if ( data.type == "boolean" ) {
