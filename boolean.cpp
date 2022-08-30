@@ -2,14 +2,16 @@
 
 function application( ) -> void {
 
-  boolean yes = true;
+  boolean b = true;
 
-  if ( yes ) {
-    console.log( yes );
+  if ( b && b == true ) {
+    console.log( b );
   }
 
-  if ( !yes ) {
-    console.log( yes );
+  b = !b;
+
+  if ( !b && b == false ) {
+    console.log( b );
   }
 
 }

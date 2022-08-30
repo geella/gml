@@ -19,12 +19,16 @@
 // const para todas las operaciones pero map solo sirve con .at
 // nececsito otro nombre para los parametros que no sea value
 
+// operator bool for check if value is empty or bool 
+// make private some methods and properties
+// undefined operator bool( ); default sin definir
 // falta slice
 // array push
 // Constructor nuevo para todos los tipos menos undefined que acepte undefined mientras sea del mismo tipo
 // String.parse() = toJson
 // Json o array .toString()
 // date dentro de time
+// The logical operators work with boolean values:
 
 struct undefined {
 	int i;
@@ -38,6 +42,7 @@ struct undefined {
 	int l = 0;
 	int precision = 1;
 
+	// Constructors
 	undefined( ) { }
 
 	undefined( int value ) : i( value ) { type = "number"; decimal = false; }
@@ -73,156 +78,8 @@ struct undefined {
 		for ( auto [ k, v ] : value ) { index.push_back( k ); container.insert( { k, v } ); l += 1; }
 	}
 
-	undefined& operator [ ] ( undefined value ) {
-		if ( type == "number" ) { throw "OOOMMMGGG"; }
-		else if ( type == "string" ) { throw "OOOMMMGGG"; }
-		else if ( type == "boolean" ) { throw "OOOMMMGGG"; }
-		else if ( type == "array" || type == "tuple" ) { return index[ value.i ]; }
-		else if ( type == "json" ) { return container[ value ]; }
-	}
-
-	undefined& operator = ( int value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		i = value;
-		decimal = false;
-		return *this;
-	}
-
-	undefined& operator = ( double value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		f = value;
-		decimal = true;
-		return *this;
-	}
-
-	undefined& operator = ( const char* value ) {
-		if ( type != "string" ) { throw "OOOMMMGGG"; }
-		s = value;
-		return *this;
-	}
-
-	undefined& operator = ( bool value ) {
-		if ( type == "string" ) { throw "OOOMMMGGG"; }
-		b = value;
-		return *this;
-	}
-
-	undefined& operator = ( undefined value ) {
-		if ( value.type == type ) { throw "OOOMMMGGG"; }
-		i = value.i;
-		f = value.f;
-		decimal = value.decimal;
-		s = value.s;
-		b = value.b;
-		index = value.index;
-		container = value.container;
-		return *this;
-	}
-
-	void operator ++ ( int ) { i++; }
-	void operator -- ( int ) { i--; }
-
-	bool operator == ( const undefined &other ) const {
-		if ( type == "number" ) { if ( decimal ) { return i == other.i; } else { return f == other.f; } } 
-		else if ( type == "string" ) { return s == other.s; }
-		else if ( type == "boolean" ) { return b == other.b; }
-		else if ( type == "json" || type == "array" || type == "tuple" ) { return container == other.container; }
-	}
-
-	bool operator < ( const undefined &other ) const {
-		if ( type == "number" ) { if ( decimal ) { return i < other.i; } else { return f < other.f; } } 
-		else if ( type == "string" ) { return s < other.s; }
-		else if ( type == "boolean" ) { return b < other.b; }
-		else if ( type == "json" || type == "array" || type == "tuple" ) { return container < other.container; }
-	}
-
 	auto begin( ) { return index.begin( ); }
 	auto end( ) { return index.end( ); }
-
-	// NUMBER
-	bool operator > ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f > tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i > tmp; }
-	}
-	
-	bool operator >= ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f >= tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i >= tmp; }
-	}
-
-	bool operator == ( undefined value ) {
-		if ( type == "number" ) {
-			if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f == tmp;}
-			else { int tmp = value.decimal ? value.f : value.i; return i == tmp; }
-		} else if ( type == "string" ) {
-			return s == value.s;
-		} else if ( type == "boolean" ) {
-			return b == value.b;
-		} else if ( type == "array" || type == "tuple" ) {
-			return index == value.index;
-		} else if ( type == "json" ) {
-			return container == container;
-		}
-	}
-
-	bool operator != ( undefined value ) {
-		if ( type == "number" ) {
-			if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f != tmp;}
-			else { int tmp = value.decimal ? value.f : value.i; return i != tmp; }
-		} else if ( type == "string" ) {
-			return s != value.s;
-		} else if ( type == "boolean" ) {
-			return b != value.b;
-		} else if ( type == "array" || type == "tuple" ) {
-			return index != value.index;
-		} else if ( type == "json" ) {
-			return container != container;
-		}
-	}
-
-	bool operator < ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f < tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i < tmp; }
-	}
-
-	bool operator <= ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f <= tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i <= tmp; }
-	}
-
-	undefined operator += ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f += tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i += tmp; }
-	}
-
-	undefined operator + ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f + tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i + tmp; }
-	}
-
-	undefined operator - ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f - tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i - tmp; }
-	}
-
-	undefined operator * ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f * tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i * tmp; }
-	}
-
-	undefined operator / ( undefined value ) {
-		if ( type != "number" ) { throw "OOOMMMGGG"; }
-		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f / tmp;}
-		else { int tmp = value.decimal ? value.f : value.i; return i / tmp; }
-	}
 
 	undefined toString( ) {
 		if ( type != "number" ) { throw "OOOMMMGGG"; }
@@ -244,7 +101,7 @@ struct undefined {
 		return *this;
 	}
 
-	// STRING
+	// STRING METHODS
 	undefined toLower( ) {
 		if ( type != "string" ) { throw "OOOMMMGGG"; }
 		std::string value = "";
@@ -346,22 +203,199 @@ struct undefined {
 		return out;
 	}
 
-	// ALL
 	undefined length ( ) {
 		if ( type != "string" && type != "array" && type != "json" && type != "tuple" ) { throw "OOOMMMGGG"; }
 		return l;
 	};
 
-	// BOOLEAN
-	undefined& operator ! ( ) {
-		if ( type != "boolean" ) { throw "OOOMMMGGG"; }
-		b = !b;
-		return *this;
-	};
-
-	explicit operator bool( ) const {
+	explicit operator bool( ) {
 		if ( type != "boolean" ) { throw "OOOMMMGGG"; }
 		return b;
+	}
+
+	// Binary Operators
+	undefined operator + ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f + tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i + tmp; }
+	}
+
+	undefined operator - ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f - tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i - tmp; }
+	}
+
+	undefined operator * ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f * tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i * tmp; }
+	}
+
+	undefined operator / ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f / tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i / tmp; }
+	}
+
+	// Assignment Operators
+	undefined& operator = ( int value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		i = value;
+		decimal = false;
+		return *this;
+	}
+
+	undefined& operator = ( double value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		f = value;
+		decimal = true;
+		return *this;
+	}
+
+	undefined& operator = ( const char* value ) {
+		if ( type != "string" ) { throw "OOOMMMGGG"; }
+		s = value;
+		return *this;
+	}
+
+	undefined& operator = ( bool value ) {
+		if ( type != "boolean" ) { throw "OOOMMMGGG"; }
+		b = value;
+		return *this;
+	}
+
+	undefined& operator = ( undefined value ) {
+		if ( value.type == type ) { throw "OOOMMMGGG"; }
+		i = value.i;
+		f = value.f;
+		decimal = value.decimal;
+		s = value.s;
+		b = value.b;
+		index = value.index;
+		container = value.container;
+		return *this;
+	}
+
+	undefined operator += ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f += tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i += tmp; }
+	}
+
+	undefined operator -= ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f -= tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i -= tmp; }
+	}
+
+	undefined operator *= ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f *= tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i *= tmp; }
+	}
+
+	undefined operator /= ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f /= tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i /= tmp; }
+	}
+
+	// Relational Operators
+	bool operator == ( const undefined &other ) const {
+		if ( type == "number" ) { if ( decimal ) { return i == other.i; } else { return f == other.f; } } 
+		else if ( type == "string" ) { return s == other.s; }
+		else if ( type == "boolean" ) { return b == other.b; }
+		else if ( type == "json" || type == "array" || type == "tuple" ) { return container == other.container; }
+	}
+
+	bool operator < ( const undefined &other ) const {
+		if ( type == "number" ) { if ( decimal ) { return i < other.i; } else { return f < other.f; } } 
+		else if ( type == "string" ) { return s < other.s; }
+		else if ( type == "boolean" ) { return b < other.b; }
+		else if ( type == "json" || type == "array" || type == "tuple" ) { return container < other.container; }
+	}
+
+	bool operator == ( undefined value ) {
+		if ( type == "number" ) {
+			if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f == tmp;}
+			else { int tmp = value.decimal ? value.f : value.i; return i == tmp; }
+		} else if ( type == "string" ) {
+			return s == value.s;
+		} else if ( type == "boolean" ) {
+			return b == value.b;
+		} else if ( type == "array" || type == "tuple" ) {
+			return index == value.index;
+		} else if ( type == "json" ) {
+			return container == container;
+		}
+	}
+
+	bool operator != ( undefined value ) {
+		if ( type == "number" ) {
+			if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f != tmp;}
+			else { int tmp = value.decimal ? value.f : value.i; return i != tmp; }
+		} else if ( type == "string" ) {
+			return s != value.s;
+		} else if ( type == "boolean" ) {
+			return b != value.b;
+		} else if ( type == "array" || type == "tuple" ) {
+			return index != value.index;
+		} else if ( type == "json" ) {
+			return container != container;
+		}
+	}
+
+	bool operator > ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f > tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i > tmp; }
+	}
+	
+	bool operator < ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f < tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i < tmp; }
+	}
+
+	bool operator >= ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f >= tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i >= tmp; }
+	}
+
+	bool operator <= ( undefined value ) {
+		if ( type != "number" ) { throw "OOOMMMGGG"; }
+		if ( decimal ) { double tmp = value.decimal ? value.f : value.i; return f <= tmp;}
+		else { int tmp = value.decimal ? value.f : value.i; return i <= tmp; }
+	}
+
+	// Unary Operators
+	bool operator ! ( ) {
+		if ( type != "boolean" ) { throw "OOOMMMGGG"; }
+		return !b ? true : false;
+	};
+
+	// Increment and Decrement Operators
+	void operator ++ ( int ) {
+		 i++;
+	}
+
+	void operator -- ( int ) {
+		i--;
+	}
+
+	// Subscripting Operator
+	undefined& operator [ ] ( undefined value ) {
+		if ( type == "number" ) { throw "OOOMMMGGG"; }
+		else if ( type == "string" ) { throw "OOOMMMGGG"; }
+		else if ( type == "boolean" ) { throw "OOOMMMGGG"; }
+		else if ( type == "array" || type == "tuple" ) { return index[ value.i ]; }
+		else if ( type == "json" ) { return container[ value ]; }
+	}
+
+	// Function Call Operator
+  void operator ( ) ( ) {
 	}
 
 };
@@ -379,6 +413,16 @@ struct number : undefined {
 			throw "OOOMMMGGG";
 		}
 	}
+	number& operator = ( int value ) {
+		i = value;
+		decimal = false;
+		return *this;
+	}
+	number& operator = ( double value ) {
+		f = value;
+		decimal = true;
+		return *this;
+	}
 };
 
 struct string : undefined {
@@ -392,6 +436,10 @@ struct string : undefined {
 			l += 1;
 		}
 	}
+	string& operator = ( const char* value ) {
+		s = value;
+		return *this;
+	}
 };
 
 struct boolean : undefined {
@@ -403,6 +451,10 @@ struct boolean : undefined {
 		} else {
 			throw "OOOMMMGGG";
 		}
+	}
+	boolean& operator = ( bool value ) {
+		b = value;
+		return *this;
 	}
 };
 
@@ -584,3 +636,27 @@ void application( );
 int main( ) { application( ); return 0; }
 
 #endif // STANDARD_H
+
+
+/*
+struct Date {
+	int year;
+	int month;
+	int day;
+	int hour;
+	int minute;
+	int second;
+
+	Date( ) {
+		std::time_t end_time = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now( ) );
+		std::tm *tm = std::localtime( &end_time );
+		year = tm->tm_year + 1900;
+		month = tm->tm_mon;
+		day = tm->tm_mday;
+		hour = tm->tm_hour;
+		minute = tm->tm_min;
+		second = tm->tm_sec;
+	}
+
+};
+*/

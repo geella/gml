@@ -4,7 +4,7 @@ function execute( ) -> tuple < number, string > {
   return { 100, "200" };
 }
 
-void application( ) {
+function application( ) -> void {
 
   tuple < number, string > t = execute( );
 

@@ -28,7 +28,5 @@ function application( ) -> void {
 			console.log( "lambda" );
 		}
 	} );
-
-	console.log( "last" );
-
+	
 }

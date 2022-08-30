@@ -1,6 +1,6 @@
 #include "standard.h"
 
-void application( ) {
+function application( ) -> void {
 
 	string s = "Hello World";
 
